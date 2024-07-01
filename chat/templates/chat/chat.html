@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ollama Chat - Neumorphic Design</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap');
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #e0e5ec;
+        }
+
+        .neumorphic {
+            box-shadow: 8px 8px 15px #a3b1c6, -8px -8px 15px #ffffff;
+        }
+
+        .neumorphic-inset {
+            box-shadow: inset 5px 5px 10px #a3b1c6, inset -5px -5px 10px #ffffff;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .chat-bubble {
+            animation: fadeIn 0.3s ease-out;
+            width: 90%;
+            max-width: 1000px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .markdown-content {
+            overflow-wrap: break-word;
+        }
+
+        .markdown-content p {
+            margin-bottom: 0.5rem;
+        }
+
+        .markdown-content pre {
+            background-color: #f0f0f0;
+            padding: 0.5rem;
+            border-radius: 0.25rem;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .markdown-content code {
+            font-family: monospace;
+            background-color: #f0f0f0;
+            padding: 0.1rem 0.2rem;
+            border-radius: 0.2rem;
+        }
+
+        .markdown-content pre code {
+            background-color: transparent;
+            padding: 0;
+        }
+
+
+    </style>
+</head>
+<body class="h-screen flex">
+    <div class="flex-1 flex flex-col overflow-hidden p-6">
+        <div class="flex-1 overflow-y-auto mb-4 neumorphic rounded-3xl p-6" id="chat-box">
+            <div class="w-full max-w-4xl mx-auto" id="chat-container"></div>
+        </div>
+        <div class="neumorphic rounded-full p-2">
+            <div class="relative flex">
+                <input type="text" id="user-input" placeholder="Type your message..." class="w-full focus:outline-none focus:ring-2 focus:ring-blue-400 text-gray-700 placeholder-gray-500 pl-4 pr-12 bg-transparent rounded-full py-3 neumorphic-inset">
+                <button id="send-btn" class="absolute right-2 top-1/2 transform -translate-y-1/2 inline-flex items-center justify-center rounded-full h-10 w-10 transition duration-300 ease-in-out text-blue-500 hover:text-blue-600 focus:outline-none neumorphic">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" class="h-6 w-6 transform rotate-90">
+                        <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+    <div class="w-1/4 p-10 neumorphic rounded-3xl ml-10 m-6">
+        <h2 class="text-2xl font-bold mb-4 text-gray-700">Settings</h2>
+        <div class="mb-4">
+            <label for="model-select" class="block mb-2 font-semibold text-gray-700">Select Model</label>
+            <select id="model-select" class="w-full p-2 rounded-lg text-gray-700 neumorphic-inset">
+                <option value="">Loading models...</option>
+            </select>
+        </div>
+        <div class="mb-4">
+            <label for="temperature" class="block mb-2 font-semibold text-gray-700">Temperature</label>
+            <input type="range" id="temperature" min="0" max="1" step="0.1" value="0.7" class="w-full neumorphic-inset">
+            <span id="temperature-value" class="block text-center mt-2 text-gray-700">0.7</span>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            $.get('/get_models/', function(data) {
+                const modelSelect = $('#model-select');
+                modelSelect.empty();
+                data.models.forEach(model => {
+                    modelSelect.append($('<option></option>').attr('value', model).text(model));
+                });
+            });
+
+            $('#temperature').on('input', function() {
+                $('#temperature-value').text($(this).val());
+            });
+
+            $('#send-btn').click(sendMessage);
+            $('#user-input').keypress(function(e) {
+                if (e.which == 13) sendMessage();
+            });
+
+            function sendMessage() {
+                const userInput = $('#user-input').val().trim();
+                if (userInput) {
+                    appendMessage('user', userInput);
+                    $('#user-input').val('');
+
+                    $.ajax({
+                        url: '/generate_response/',
+                        method: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify({
+                            model: $('#model-select').val(),
+                            prompt: userInput,
+                            temperature: parseFloat($('#temperature').val())
+                        }),
+                        success: function(data) {
+                            appendMessage('bot', data.response);
+                        },
+                        error: function() {
+                            appendMessage('bot', 'Error: Unable to generate response');
+                        }
+                    });
+                }
+            }
+
+            function appendMessage(sender, message) {
+                const bubbleClass = sender === 'user' ? 'bg-blue-100' : 'bg-gray-100';
+                const renderedMessage = marked.parse(message);
+                const bubbleHtml = `
+                    <div class="chat-bubble mb-4">
+                        <div class="neumorphic p-3 rounded-2xl ${bubbleClass}">
+                            <div class="text-sm text-gray-700 markdown-content">${renderedMessage}</div>
+                        </div>
+                    </div>
+                `;
+                $('#chat-container').append(bubbleHtml);
+                $('#chat-box').scrollTop($('#chat-box')[0].scrollHeight);
+            }
+        });
+    </script>
+</body>
+</html>
