@@ -18,7 +18,6 @@ OllamaChat is a chat interface designed to work with local Language Model Machin
 ## Features
 - Local LLM support using Ollama
 - Easy setup and deployment with Django
-- Customizable chat interface
 - Secure and private communication
 
 ## Installation
@@ -33,7 +32,24 @@ Before you begin, ensure you have met the following requirements:
 
 1. **Clone the Repository**
    ```sh
-   git clone https://github.com/yourusername/OllamaChat.git
+   git clone [https://github.com/yourusername/OllamaChat.git](https://github.com/traromal/OllamaChat.git)
    cd OllamaChat
+2. **Set Up a Virtual Environment**
+   ```sh
+   python3 -m venv venv
+   source venv/bin/activate
+3. ** Install Django and Other Dependencies**
+   ```sh
+   pip install django
+4. **Configure Django**
+   Navigate to the OllamaChat directory and create a new Django project:
+   **Apply initial migrations:**
+   ```sh
+    python manage.py migrate
+ 5.**Run the Development Server**
+  ```sh
+     python manage.py runserver
 
+
+  
 
