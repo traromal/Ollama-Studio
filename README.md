@@ -40,7 +40,7 @@ Before you begin, ensure you have met the following requirements:
    ```sh
    python3 -m venv venv
    source venv/bin/activate
-3. ** Install Django and Other Dependencies**
+3. **Install Django and Other Dependencies**
    ```sh
    pip install django
 4. **Configure Django**
