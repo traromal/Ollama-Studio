@@ -2,6 +2,8 @@
 
 A chat interface with local LLMs using Ollama.
 
+![OllamaChat Screenshot](OLLAMA.png)
+
 ## Table of Contents
 - [Introduction](#introduction)
 - [Features](#features)
