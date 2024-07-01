@@ -34,7 +34,7 @@ Before you begin, ensure you have met the following requirements:
 
 1. **Clone the Repository**
    ```sh
-   git clone [https://github.com/yourusername/OllamaChat.git](https://github.com/traromal/OllamaChat.git)
+   git clone https://github.com/traromal/OllamaChat.git
    cd OllamaChat
 2. **Set Up a Virtual Environment**
    ```sh
