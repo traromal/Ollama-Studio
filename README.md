@@ -1,4 +1,4 @@
-# OllamaChat
+# Ollama Studio
 
 A chat interface with local LLMs using Ollama.
 
